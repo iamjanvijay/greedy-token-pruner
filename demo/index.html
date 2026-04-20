@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Category Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input {
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #495057;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .question-box, .answer-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .tokens-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            line-height: 2;
+            min-height: 100px;
+            word-wrap: break-word;
+        }
+
+        .token {
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 6px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            font-size: 1em;
+            transition: all 0.2s ease;
+            cursor: default;
+            position: relative;
+        }
+
+        .token:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .token.deleted {
+            background: #6c757d !important;
+            color: #adb5bd !important;
+            border-color: #495057 !important;
+            opacity: 0.6;
+        }
+
+        .slider-container {
+            margin: 30px 0;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .slider-label span {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #495057;
+        }
+
+        .slider-value {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: #5568d3;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #6c757d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
+        }
+
+        .info-text {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* Category colors */
+        .token-category-SYMBOLIC_MATH { background: rgb(98, 160, 202); color: white; }
+        .token-category-FUNCTION { background: rgb(255, 165, 85); color: white; }
+        .token-category-ENTITY_NAME { background: rgb(107, 188, 107); color: white; }
+        .token-category-META_DISCOURSE { background: rgb(226, 104, 104); color: white; }
+        .token-category-VERBAL_MATH { background: rgb(180, 148, 209); color: white; }
+        .token-category-COREFERENCE { background: rgb(174, 136, 129); color: white; }
+
+        /* Legend styles */
+        .legend {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 1em;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .legend-color-box.deleted {
+            background: #6c757d !important;
+            border-color: #495057 !important;
+        }
+
+        .legend-label {
+            font-size: 0.95em;
+            color: #495057;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span style="color: #FFFFFF;">Do LLMs Encode Functional Importance of Reasoning Tokens?</span>
+            </h1>
+            <p>Interactively explore token importance and observe pruning across steps.</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="teacherModel">Teacher Model</label>
+                <select id="teacherModel">
+                    <option value="qwen-2.5-7b">Qwen 2.5 7B</option>
+                    <option value="llama-3-8b" selected>Llama 3 8B</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="prunerModel">Pruner Model</label>
+                <select id="prunerModel">
+                    <option value="qwen-2.5-7b">Qwen 2.5 7B</option>
+                    <option value="llama-2-7b">Llama 2 7B</option>
+                    <option value="llama-3-8b" selected>Llama 3 8B</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="bestCandCriteria">Pruning Objective</label>
+                <select id="bestCandCriteria">
+                    <option value="reason-answer" selected>Joint</option>
+                    <option value="answer">Answer</option>
+                    <option value="token-skip">Token Skip</option>
+                    <option value="surprisal">Surprisal</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="exampleIdx">Example Index (0-99)</label>
+                <input type="number" id="exampleIdx" min="0" max="99" value="0">
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="loading" class="loading">Loading data...</div>
+            <div id="error" class="error" style="display: none;"></div>
+            <div id="content" style="display: none;">
+                <div class="section">
+                    <div class="section-title">📝 Question</div>
+                    <div id="question" class="question-box"></div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🧩 Reason Tokens</div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Pruning Step</span>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <span class="slider-value" id="stepValue">0</span>
+                                <span class="slider-value" id="prunedPercentage" style="background: #28a745;">0.00%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="pruningStep" min="0" max="0" value="0">
+                        <div class="info-text">Move the slider to see tokens being pruned. Gray tokens are deleted.</div>
+                    </div>
+                    <div id="tokens" class="tokens-container"></div>
+                    <div class="legend">
+                        <div class="legend-title">📊 Category Legend</div>
+                        <div class="legend-items" id="legendItems"></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">✅ Answer</div>
+                    <div id="answer" class="answer-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+        let currentExample = null;
+        let maxDeletedStep = 0;
+
+        const categoryColors = {
+            'SYMBOLIC_MATH': 'rgb(98, 160, 202)',
+            'FUNCTION': 'rgb(255, 165, 85)',
+            'ENTITY_NAME': 'rgb(107, 188, 107)',
+            'META_DISCOURSE': 'rgb(226, 104, 104)',
+            'VERBAL_MATH': 'rgb(180, 148, 209)',
+            'COREFERENCE': 'rgb(174, 136, 129)'
+        };
+
+        // Valid settings combinations
+        const validSettings = [
+            { teacher: 'qwen-2.5-7b', pruner: 'qwen-2.5-7b', criteria: 'reason-answer' },
+            { teacher: 'qwen-2.5-7b', pruner: 'qwen-2.5-7b', criteria: 'answer' },
+            { teacher: 'qwen-2.5-7b', pruner: 'llama-2-7b', criteria: 'reason-answer' },
+            { teacher: 'llama-3-8b', pruner: 'llama-3-8b', criteria: 'reason-answer' },
+            { teacher: 'qwen-2.5-7b', pruner: 'none', criteria: 'token-skip' },
+            { teacher: 'qwen-2.5-7b', pruner: 'none', criteria: 'surprisal' }
+        ];
+
+        function updatePrunerOptions() {
+            const teacherModel = document.getElementById('teacherModel').value;
+            const prunerSelect = document.getElementById('prunerModel');
+            const currentPruner = prunerSelect.value;
+            
+            // Get valid pruners for this teacher
+            const validPruners = [...new Set(validSettings
+                .filter(s => s.teacher === teacherModel)
+                .map(s => s.pruner))];
+            
+            // Sort pruners to ensure consistent order: qwen-2.5-7b, llama-2-7b, llama-3-8b, none
+            const prunerOrder = ['qwen-2.5-7b', 'llama-2-7b', 'llama-3-8b', 'none'];
+            const sortedPruners = prunerOrder.filter(p => validPruners.includes(p));
+            
+            // Clear and repopulate
+            prunerSelect.innerHTML = '';
+            sortedPruners.forEach(pruner => {
+                const option = document.createElement('option');
+                option.value = pruner;
+                option.textContent = pruner === 'qwen-2.5-7b' ? 'Qwen 2.5 7B' : 
+                                   pruner === 'llama-2-7b' ? 'Llama 2 7B' : 
+                                   pruner === 'llama-3-8b' ? 'Llama 3 8B' :
+                                   pruner === 'none' ? 'None' : pruner;
+                if (pruner === currentPruner && validPruners.includes(currentPruner)) {
+                    option.selected = true;
+                }
+                prunerSelect.appendChild(option);
+            });
+            
+            // If current selection is invalid, select first valid option
+            if (!validPruners.includes(currentPruner)) {
+                prunerSelect.value = sortedPruners[0];
+            }
+            
+            updateCriteriaOptions();
+        }
+
+        function updateCriteriaOptions() {
+            const teacherModel = document.getElementById('teacherModel').value;
+            const prunerModel = document.getElementById('prunerModel').value;
+            const criteriaSelect = document.getElementById('bestCandCriteria');
+            const currentCriteria = criteriaSelect.value;
+            
+            // Get valid criteria for this teacher+pruner combination
+            const validCriteria = [...new Set(validSettings
+                .filter(s => s.teacher === teacherModel && s.pruner === prunerModel)
+                .map(s => s.criteria))];
+            
+            // Sort criteria to ensure consistent order: reason-answer, answer, token-skip, surprisal
+            const criteriaOrder = ['reason-answer', 'answer', 'token-skip', 'surprisal'];
+            const sortedCriteria = criteriaOrder.filter(c => validCriteria.includes(c));
+            
+            // Clear and repopulate
+            criteriaSelect.innerHTML = '';
+            sortedCriteria.forEach(criteria => {
+                const option = document.createElement('option');
+                option.value = criteria;
+                option.textContent = criteria === 'reason-answer' ? 'Joint' : 
+                                   criteria === 'answer' ? 'Answer' :
+                                   criteria === 'token-skip' ? 'Token Skip' :
+                                   criteria === 'surprisal' ? 'Surprisal' : criteria;
+                if (criteria === currentCriteria && validCriteria.includes(currentCriteria)) {
+                    option.selected = true;
+                }
+                criteriaSelect.appendChild(option);
+            });
+            
+            // If current selection is invalid, select first valid option
+            if (!validCriteria.includes(currentCriteria)) {
+                criteriaSelect.value = sortedCriteria[0];
+            }
+        }
+
+        function getDataFilePath() {
+            const teacherModel = document.getElementById('teacherModel').value;
+            const prunerModel = document.getElementById('prunerModel').value;
+            const bestCandCriteria = document.getElementById('bestCandCriteria').value;
+            const dataset = 'gsm8k';
+            const split = 'train';
+            return `./data/category-prompt-response-${teacherModel}-${prunerModel}-${bestCandCriteria}-${dataset}-${split}.jsonl`;
+        }
+
+        function getQuestionReasonAnswer(userPrompt) {
+            const questionBeginMarker = "--------------------------------------------------\n\nQuestion:\n";
+            const reasonBeginMarker = "\n\nOutput Reason:\n";
+            const answerBeginMarker = "\nOutput Answer:\n";
+            const answerEndMarker = "\n\nOutput Reason Tokens (JSON Format)";
+
+            const split1 = userPrompt.split(questionBeginMarker)[1];
+            const question = split1.split(reasonBeginMarker)[0];
+            const split2 = split1.split(reasonBeginMarker)[1];
+            const reason = split2.split(answerBeginMarker)[0];
+            const split3 = split2.split(answerBeginMarker)[1];
+            const answer = split3.split(answerEndMarker)[0];
+
+            return { question, reason, answer };
+        }
+
+        async function loadData() {
+            const filePath = getDataFilePath();
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('content').style.display = 'none';
+
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    throw new Error(`Failed to load data: ${response.statusText}`);
+                }
+                const text = await response.text();
+                const lines = text.trim().split('\n').filter(line => line.trim());
+                currentData = lines.map(line => JSON.parse(line));
+                
+                loadExample();
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function loadExample() {
+            const exampleIdx = parseInt(document.getElementById('exampleIdx').value) || 0;
+            
+            if (!currentData || exampleIdx < 0 || exampleIdx >= currentData.length) {
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = `Invalid example index. Available range: 0-${currentData ? currentData.length - 1 : 0}`;
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+
+            currentExample = currentData[exampleIdx];
+            const { question, answer } = getQuestionReasonAnswer(currentExample.user_prompt);
+            
+            // Update max deleted step
+            maxDeletedStep = Math.max(...currentExample.reason_tokens_json.map(t => t.deleted_step));
+            
+            // Update UI
+            document.getElementById('question').textContent = question;
+            document.getElementById('answer').textContent = answer;
+            
+            // Update slider
+            const slider = document.getElementById('pruningStep');
+            slider.max = maxDeletedStep;
+            slider.value = 0;
+            updateStepValue(0);
+            
+            // Render tokens
+            renderTokens(0);
+            
+            // Render legend
+            renderLegend();
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function updateStepValue(step) {
+            document.getElementById('stepValue').textContent = step;
+            
+            // Calculate pruned percentage
+            if (currentExample && currentExample.reason_tokens_json) {
+                const totalTokens = currentExample.reason_tokens_json.length;
+                const prunedTokens = currentExample.reason_tokens_json.filter(t => t.deleted_step <= step).length;
+                const prunedPercentage = (prunedTokens / totalTokens) * 100;
+                document.getElementById('prunedPercentage').textContent = prunedPercentage.toFixed(2) + '%';
+            }
+        }
+
+        function renderTokens(pruningStep) {
+            const tokensContainer = document.getElementById('tokens');
+            tokensContainer.innerHTML = '';
+            
+            // Sort tokens by token_position to maintain order
+            const sortedTokens = [...currentExample.reason_tokens_json].sort((a, b) => a.token_position - b.token_position);
+            
+            sortedTokens.forEach(token => {
+                const tokenElement = document.createElement('span');
+                tokenElement.className = `token token-category-${token.category}`;
+                tokenElement.textContent = token.token_text;
+                tokenElement.title = `Category: ${token.category}\nDeleted at step: ${token.deleted_step}`;
+                
+                // Mark as deleted if deleted_step <= current pruning step
+                if (token.deleted_step <= pruningStep) {
+                    tokenElement.classList.add('deleted');
+                }
+                
+                tokensContainer.appendChild(tokenElement);
+            });
+        }
+
+        function renderLegend() {
+            const legendItems = document.getElementById('legendItems');
+            legendItems.innerHTML = '';
+            
+            // Category display names
+            const categoryNames = {
+                'FUNCTION': 'Grammar',
+                'ENTITY_NAME': 'EntName',
+                'SYMBOLIC_MATH': 'SymbMath',
+                'VERBAL_MATH': 'VerbalMath',
+                'META_DISCOURSE': 'MetaDisc',
+                'COREFERENCE': 'Coref'
+            };
+            
+            // Fixed order for categories
+            const categoryOrder = ['SYMBOLIC_MATH', 'FUNCTION', 'ENTITY_NAME', 'META_DISCOURSE', 'VERBAL_MATH', 'COREFERENCE'];
+            
+            // Get all unique categories from current example
+            const categoriesInExample = new Set(currentExample.reason_tokens_json.map(t => t.category));
+            
+            // Add legend items in the specified order, only for categories present in the example
+            categoryOrder.forEach(category => {
+                if (categoriesInExample.has(category)) {
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+                    
+                    const colorBox = document.createElement('div');
+                    colorBox.className = `legend-color-box token-category-${category}`;
+                    
+                    const label = document.createElement('span');
+                    label.className = 'legend-label';
+                    label.textContent = categoryNames[category] || category;
+                    
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(label);
+                    legendItems.appendChild(legendItem);
+                }
+            });
+            
+            // Add deleted category last
+            const deletedItem = document.createElement('div');
+            deletedItem.className = 'legend-item';
+            
+            const deletedColorBox = document.createElement('div');
+            deletedColorBox.className = 'legend-color-box deleted';
+            
+            const deletedLabel = document.createElement('span');
+            deletedLabel.className = 'legend-label';
+            deletedLabel.textContent = 'Deleted';
+            
+            deletedItem.appendChild(deletedColorBox);
+            deletedItem.appendChild(deletedLabel);
+            legendItems.appendChild(deletedItem);
+        }
+
+        // Event listeners
+        document.getElementById('teacherModel').addEventListener('change', () => {
+            updatePrunerOptions();
+            loadData();
+        });
+        document.getElementById('prunerModel').addEventListener('change', () => {
+            updateCriteriaOptions();
+            loadData();
+        });
+        document.getElementById('bestCandCriteria').addEventListener('change', loadData);
+        document.getElementById('exampleIdx').addEventListener('change', loadExample);
+        document.getElementById('pruningStep').addEventListener('input', (e) => {
+            const step = parseInt(e.target.value);
+            updateStepValue(step);
+            renderTokens(step);
+        });
+
+        // Initialize dropdowns and load data
+        updatePrunerOptions();
+        loadData();
+    </script>
+</body>
+</html>
+
