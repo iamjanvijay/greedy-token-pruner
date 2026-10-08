@@ -36,9 +36,61 @@ We evaluate pruned reasoning chains via teacher–pruner–student distillation 
 
 ```text
 .
-├── pruning/          # Greedy pruning implementation
-├── baselines/        # TokenSkip, H2O, Surprisal, Uniform
-├── distillation/     # Teacher–pruner–student training code
-├── evaluation/       # Accuracy and analysis scripts
-├── configs/          # Experiment configs
-└── scripts/
+├── pruning/           # Greedy pruning implementation
+│   └── prune_with_greedy.py
+├── baselines/         # Token-level pruning baselines
+│   ├── prune_with_surprisal.py   # Surprisal-ranked token deletion
+│   └── prune_with_lingua.py      # LLMLingua-2 compression
+├── data_generation/   # Teacher reasoning sampling (vLLM)
+│   └── gen_data_from_teacher.py
+├── evaluation/        # Accuracy evaluation (pruner → student answer continuation)
+│   └── gen_answer_from_question_reason.py
+├── scripts/           # Runner scripts for the pipeline
+│   ├── gen_data_from_teacher.sh
+│   ├── prune_with_greedy.sh
+│   ├── prune_with_surprisal.sh
+│   └── prune_with_lingua.sh
+└── docs/              # Project page / demo
+```
+
+## ⚙️ Configuration
+
+The pruning and data-generation scripts read/write under a single base directory.
+Set it via the `GREEDY_PRUNER_DATA_DIR` environment variable (defaults to `./data`):
+
+```bash
+export GREEDY_PRUNER_DATA_DIR=/path/to/your/data
+```
+
+Expected sub-structure under that directory:
+
+```text
+$GREEDY_PRUNER_DATA_DIR/
+└── latest-data/
+    ├── teacher-generated/            # Output of gen_data_from_teacher.py
+    ├── greedy-reason-answer-pruned/  # Output of prune_with_greedy.py
+    ├── greedy-answer-pruned/
+    ├── surprisal-pruned/             # Output of prune_with_surprisal.py
+    └── lingua-pruned/                # Output of prune_with_lingua.py
+```
+
+## 🚀 Usage
+
+Run all scripts from the repository root:
+
+```bash
+# 1. Sample reasoning chains from teacher models.
+bash scripts/gen_data_from_teacher.sh
+
+# 2. Prune with greedy (ours) or baselines.
+bash scripts/prune_with_greedy.sh
+bash scripts/prune_with_surprisal.sh
+bash scripts/prune_with_lingua.sh
+
+# 3. Evaluate pruned reasoning on downstream answer accuracy.
+python3 evaluation/gen_answer_from_question_reason.py \
+    --model-name meta-llama/Llama-3.1-8B-Instruct \
+    --dataset-name openai/gsm8k \
+    --input-path path/to/pruned.jsonl \
+    --use-pruned
+```

@@ -1,0 +1,29 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Local data / outputs
+data/
+latest-data/
+wandb/
+*.jsonl
+*.ckpt
+*.pt
+*.bin
+*.safetensors
+
+# Plots / caches
+token_length_histograms.png
+.cache/
+.hf_cache/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
