@@ -4,7 +4,7 @@ import argparse
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data_generation"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gen_data_from_teacher import parse_response, match_responses
 
 base_dir = os.environ.get("GREEDY_PRUNER_DATA_DIR", os.path.join(os.getcwd(), "data", "latest-data"))
@@ -81,10 +81,7 @@ def generate_answer_from_question_reason(model_name, dataset_name, data, max_tok
         prompt = prompt[:-len(eot_token)] + answer_begin # we want to continue the last assistant message.
         prompts.append(prompt)
 
-    # sampling params.
-    sampling_params = SamplingParams(temperature=0.0, max_tokens=256) # set to 100 because we want to continue the last assistant message.
-
-    # Generate answers: return just the list of decoded answer strings from the model outputs.
+    sampling_params = SamplingParams(temperature=0.0, max_tokens=256)
     outputs = llm_model.generate(prompts, sampling_params)
     answers = [answer_begin + output.outputs[0].text for output in outputs]
     return answers

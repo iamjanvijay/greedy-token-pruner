@@ -64,24 +64,13 @@ def batch_generate_responses(model_name, system_prompt, dataset_name, question_a
         add_generation_prompt=True
     ) for question in questions]
 
-    # setup the sampling params.
-    sampling_params = SamplingParams(n=n, temperature=temperature, max_tokens=max_tokens) # modify this as required.
-
-    # generate the responses.
+    sampling_params = SamplingParams(n=n, temperature=temperature, max_tokens=max_tokens)
     responses = model.generate(prompts, sampling_params)
     responses = [[response.outputs[idx].text for idx in range(len(response.outputs))] for response in responses]
 
     return questions, answers, responses
 
 def parse_response_gsm8k(response):
-    # MARKERS = ['{"answer":', '{\n"answer":', '{ "answer":', "{'answer':", "{\n'answer':", "{ 'answer':"]
-
-    # marker_index = -1
-    # for MARKER in MARKERS:
-    #     if MARKER in response:
-    #         marker_index = max(marker_index, response.rindex(MARKER))
-
-
     pattern = re.compile(
         r"""
         \{                      # opening brace
@@ -235,17 +224,14 @@ def main():
     # setup the output filename.
     os.makedirs(output_dir, exist_ok=True)
 
-    # preapare the question and answer pairs.
     question_answer_pairs = [get_user_prompt_and_answer(dataset_name, dataset, idx) for idx, example in enumerate(dataset)]
     questions, answers, responses = batch_generate_responses(model_name, system_prompt, dataset_name, question_answer_pairs, max_tokens=max_tokens, temperature=temperature, n=n)
 
-    # setup the output writer.
     out_fpath = os.path.join(output_dir, f"{dataset_name.replace('/', '-')}_{dataset_split.replace('/', '-')}_{model_name.replace('/', '-')}.jsonl")
     writer = jsonlines.open(out_fpath, "w")
 
-    # parse and evaluate the correctness of the responses.
     total, correct, unparsed = 0, 0, 0
-    for question, answer, response_list in zip(questions, answers, responses): # response_list is a list of 5 responses.
+    for question, answer, response_list in zip(questions, answers, responses):  # response_list has n samples per question
         correct_response_found = False
         first_parsed = None
         

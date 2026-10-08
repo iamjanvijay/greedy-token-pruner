@@ -404,7 +404,8 @@ if __name__ == "__main__":
     print(f"Max Model Length:    {max_chat_template_token_ids_length}")
     print(f"{'='*80}\n")
 
-    # surprisal Pruning: Prune the tokens which has highest P(reason - token, answer | question)
+    # Surprisal pruning: delete reasoning tokens in order of ascending surprisal
+    # (equivalently, descending log-prob under the teacher model).
     print("Starting surprisal pruning...")
     total_time, total_examples = 0, 0
     skipped_examples = 0

@@ -32,25 +32,22 @@ We evaluate pruned reasoning chains via teacher–pruner–student distillation 
 
 ---
 
-## 📦 Repository Structure (subject to change)
+## 📦 Repository Structure
 
 ```text
 .
-├── pruning/           # Greedy pruning implementation
-│   └── prune_with_greedy.py
-├── baselines/         # Token-level pruning baselines
-│   ├── prune_with_surprisal.py   # Surprisal-ranked token deletion
-│   └── prune_with_lingua.py      # LLMLingua-2 compression
-├── data_generation/   # Teacher reasoning sampling (vLLM)
-│   └── gen_data_from_teacher.py
-├── evaluation/        # Accuracy evaluation (pruner → student answer continuation)
-│   └── gen_answer_from_question_reason.py
-├── scripts/           # Runner scripts for the pipeline
-│   ├── gen_data_from_teacher.sh
-│   ├── prune_with_greedy.sh
-│   ├── prune_with_surprisal.sh
-│   └── prune_with_lingua.sh
-└── docs/              # Project page / demo
+├── code/
+│   ├── gen_data_from_teacher.py          # Teacher reasoning sampling (vLLM)
+│   ├── prune_with_greedy.py              # Greedy pruning (ours)
+│   ├── prune_with_surprisal.py           # Surprisal baseline
+│   ├── prune_with_lingua.py              # LLMLingua-2 baseline
+│   ├── gen_answer_from_question_reason.py # Downstream answer evaluation
+│   └── scripts/                          # Pipeline runners
+│       ├── gen_data_from_teacher.sh
+│       ├── prune_with_greedy.sh
+│       ├── prune_with_surprisal.sh
+│       └── prune_with_lingua.sh
+└── docs/                                 # Project page / demo
 ```
 
 ## ⚙️ Configuration
@@ -80,15 +77,15 @@ Run all scripts from the repository root:
 
 ```bash
 # 1. Sample reasoning chains from teacher models.
-bash scripts/gen_data_from_teacher.sh
+bash code/scripts/gen_data_from_teacher.sh
 
 # 2. Prune with greedy (ours) or baselines.
-bash scripts/prune_with_greedy.sh
-bash scripts/prune_with_surprisal.sh
-bash scripts/prune_with_lingua.sh
+bash code/scripts/prune_with_greedy.sh
+bash code/scripts/prune_with_surprisal.sh
+bash code/scripts/prune_with_lingua.sh
 
 # 3. Evaluate pruned reasoning on downstream answer accuracy.
-python3 evaluation/gen_answer_from_question_reason.py \
+python3 code/gen_answer_from_question_reason.py \
     --model-name meta-llama/Llama-3.1-8B-Instruct \
     --dataset-name openai/gsm8k \
     --input-path path/to/pruned.jsonl \
