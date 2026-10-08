@@ -6,17 +6,6 @@ The code supports reproducing the main experiments from the paper, including gre
 
 ---
 
-## 🚧 Status: Work in Progress
-
-This repository is **under active development**.
-
-- Core pruning and evaluation code is being finalized
-- Additional documentation and cleanup are ongoing
-
-We recommend checking back soon for a more stable release.
-
----
-
 ## 📄 Paper
 
 **Do LLMs Encode Functional Importance of Reasoning Tokens?**  
@@ -37,17 +26,17 @@ We evaluate pruned reasoning chains via teacher–pruner–student distillation 
 ```text
 .
 ├── code/
-│   ├── gen_data_from_teacher.py          # Teacher reasoning sampling (vLLM)
-│   ├── prune_with_greedy.py              # Greedy pruning (ours)
-│   ├── prune_with_surprisal.py           # Surprisal baseline
-│   ├── prune_with_lingua.py              # LLMLingua-2 baseline
-│   ├── gen_answer_from_question_reason.py # Downstream answer evaluation
-│   └── scripts/                          # Pipeline runners
-│       ├── gen_data_from_teacher.sh
+│   ├── sample_teacher.py          # Teacher reasoning sampling (vLLM)
+│   ├── prune_with_greedy.py       # Greedy pruning (ours)
+│   ├── prune_with_surprisal.py    # Surprisal baseline
+│   ├── prune_with_lingua.py       # LLMLingua-2 baseline
+│   ├── evaluate_reasoning.py      # Downstream answer evaluation
+│   └── scripts/                   # Pipeline runners
+│       ├── sample_teacher.sh
 │       ├── prune_with_greedy.sh
 │       ├── prune_with_surprisal.sh
 │       └── prune_with_lingua.sh
-└── docs/                                 # Project page / demo
+└── docs/                          # Project page / demo
 ```
 
 ## ⚙️ Configuration
@@ -64,7 +53,7 @@ Expected sub-structure under that directory:
 ```text
 $GREEDY_PRUNER_DATA_DIR/
 └── latest-data/
-    ├── teacher-generated/            # Output of gen_data_from_teacher.py
+    ├── teacher-generated/            # Output of sample_teacher.py
     ├── greedy-reason-answer-pruned/  # Output of prune_with_greedy.py
     ├── greedy-answer-pruned/
     ├── surprisal-pruned/             # Output of prune_with_surprisal.py
@@ -77,7 +66,7 @@ Run all scripts from the repository root:
 
 ```bash
 # 1. Sample reasoning chains from teacher models.
-bash code/scripts/gen_data_from_teacher.sh
+bash code/scripts/sample_teacher.sh
 
 # 2. Prune with greedy (ours) or baselines.
 bash code/scripts/prune_with_greedy.sh
@@ -85,7 +74,7 @@ bash code/scripts/prune_with_surprisal.sh
 bash code/scripts/prune_with_lingua.sh
 
 # 3. Evaluate pruned reasoning on downstream answer accuracy.
-python3 code/gen_answer_from_question_reason.py \
+python3 code/evaluate_reasoning.py \
     --model-name meta-llama/Llama-3.1-8B-Instruct \
     --dataset-name openai/gsm8k \
     --input-path path/to/pruned.jsonl \

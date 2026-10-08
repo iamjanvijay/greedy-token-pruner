@@ -20,7 +20,7 @@ declare -a DATASET_MODEL_SPLIT_LIST=(
 for entry in "${DATASET_MODEL_SPLIT_LIST[@]}"; do
     IFS='|' read -r DATASET_NAME DATASET_SPLIT MODEL <<< "$entry"
     echo "Running: dataset=${DATASET_NAME}, split=${DATASET_SPLIT}, model=${MODEL}"
-    python3 code/gen_data_from_teacher.py \
+    python3 code/sample_teacher.py \
         --model "${MODEL}" \
         --dataset_name "${DATASET_NAME}" \
         --dataset_split "${DATASET_SPLIT}" \

@@ -5,7 +5,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gen_data_from_teacher import parse_response, match_responses
+from sample_teacher import parse_response, match_responses
 
 base_dir = os.environ.get("GREEDY_PRUNER_DATA_DIR", os.path.join(os.getcwd(), "data", "latest-data"))
 
