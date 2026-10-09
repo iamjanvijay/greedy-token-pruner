@@ -190,7 +190,7 @@ def parse_args():
     parser.add_argument("--model", default="meta-llama/Llama-3.1-8B-Instruct", type=str)
     parser.add_argument("--dataset_name", default="openai/gsm8k", type=str)
     parser.add_argument("--dataset_split", default="train", type=str)
-    parser.add_argument("--output_dir", default="latest-data", type=str)
+    parser.add_argument("--output_dir", default="data/teacher-generated", type=str)
     parser.add_argument("--num_examples", default=-1, type=int)
     parser.add_argument("--max_tokens", default=256*6, type=int)
     parser.add_argument("--temperature", default=0.7, type=float)

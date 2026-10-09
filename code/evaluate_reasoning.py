@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sample_teacher import parse_response, match_responses
 
-base_dir = os.environ.get("GREEDY_PRUNER_DATA_DIR", os.path.join(os.getcwd(), "data", "latest-data"))
+base_dir = os.environ.get("GREEDY_PRUNER_DATA_DIR", os.path.join(os.getcwd(), "data"))
 
 def read_question_reason_file(file_path, use_pruned=True):
     data = []

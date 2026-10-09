@@ -433,10 +433,10 @@ if __name__ == "__main__":
     pruner_tokenizer, pruner_marker_token_to_id = build_tokenizer_with_markers(pruner_model)
 
     source_filepath = os.path.join(
-        BASE_DIR, "latest-data/teacher-generated",
+        BASE_DIR, "teacher-generated",
         f"{dataset.replace('/', '-')}_{dataset_split}_{teacher_model.replace('/', '-')}.jsonl"
     )
-    dest_path = f"{BASE_DIR}/latest-data/greedy-{best_cand_criteria}-pruned"
+    dest_path = f"{BASE_DIR}/greedy-{best_cand_criteria}-pruned"
 
     save_folder = os.path.join(dest_path, teacher_model.replace('/', '-'), dataset.replace('/', '-'), dataset_split, pruner_model.replace('/', '-'))
     os.makedirs(save_folder, exist_ok=True)

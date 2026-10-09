@@ -291,10 +291,10 @@ BASE_DIR = os.environ.get("GREEDY_PRUNER_DATA_DIR", os.path.join(os.getcwd(), "d
 
 # Input/Output paths
 source_filepath = os.path.join(
-    BASE_DIR, "latest-data/teacher-generated",
+    BASE_DIR, "teacher-generated",
     f"{dataset.replace('/', '-')}_{split}_{teacher_model.replace('/', '-')}.jsonl"
 )
-dest_path = os.path.join(BASE_DIR, "latest-data/lingua-pruned")
+dest_path = os.path.join(BASE_DIR, "lingua-pruned")
 
 # Print configuration
 print(f"\n{'='*80}")

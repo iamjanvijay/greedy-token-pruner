@@ -1,11 +1,11 @@
 #!/bin/bash
 # Generate teacher reasoning data on the test splits of the three held-out datasets.
 # Run from the repository root. Writes JSONL files to
-# $GREEDY_PRUNER_DATA_DIR/latest-data/teacher-generated/.
+# $GREEDY_PRUNER_DATA_DIR/teacher-generated/.
 
 set -e
 
-base_data_dir="${GREEDY_PRUNER_DATA_DIR:-$(pwd)/data}/latest-data/teacher-generated"
+base_data_dir="${GREEDY_PRUNER_DATA_DIR:-$(pwd)/data}/teacher-generated"
 
 # Each entry: dataset_name|split|model
 declare -a DATASET_MODEL_SPLIT_LIST=(

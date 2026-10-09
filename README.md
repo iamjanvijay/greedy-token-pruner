@@ -52,12 +52,11 @@ Expected sub-structure under that directory:
 
 ```text
 $GREEDY_PRUNER_DATA_DIR/
-└── latest-data/
-    ├── teacher-generated/            # Output of sample_teacher.py
-    ├── greedy-reason-answer-pruned/  # Output of prune_with_greedy.py
-    ├── greedy-answer-pruned/
-    ├── surprisal-pruned/             # Output of prune_with_surprisal.py
-    └── lingua-pruned/                # Output of prune_with_lingua.py
+├── teacher-generated/            # Output of sample_teacher.py
+├── greedy-reason-answer-pruned/  # Output of prune_with_greedy.py
+├── greedy-answer-pruned/
+├── surprisal-pruned/             # Output of prune_with_surprisal.py
+└── lingua-pruned/                # Output of prune_with_lingua.py
 ```
 
 ## 🚀 Usage
